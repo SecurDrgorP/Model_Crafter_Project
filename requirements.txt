@@ -1,0 +1,5 @@
+tensorflow>=2.10
+scikit-learn
+matplotlib
+split-folders
+numpy
