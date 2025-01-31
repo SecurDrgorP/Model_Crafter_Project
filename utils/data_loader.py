@@ -1,27 +1,46 @@
+from pathlib import Path
 import tensorflow as tf
-from tensorflow.keras.preprocessing import image_dataset_from_directory
-from utils.split_data import split_data
+from config import SPLIT_DATA_DIR, IMG_SIZE, BATCH_SIZE, logger
 
-def load_data(data_dir, img_size, batch_size):
+class DataLoader:
+    def __init__(self):
+        self.augmentation = tf.keras.Sequential([
+            tf.keras.layers.RandomFlip("horizontal"),
+            tf.keras.layers.RandomRotation(0.2)
+        ])
 
-    split_data()
+    def load_datasets(self):
+        try:
+            # Load datasets from split directories
+            train_ds = tf.keras.utils.image_dataset_from_directory(
+                SPLIT_DATA_DIR / "train",
+                image_size=IMG_SIZE,
+                batch_size=BATCH_SIZE,
+                label_mode='categorical'
+            )
+            
+            val_ds = tf.keras.utils.image_dataset_from_directory(
+                SPLIT_DATA_DIR / "val",
+                image_size=IMG_SIZE,
+                batch_size=BATCH_SIZE,
+                label_mode='categorical'
+            )
 
-    train_ds = image_dataset_from_directory(
-        f"{data_dir}/train",
-        image_size=img_size,
-        batch_size=batch_size,
-        label_mode='categorical'
-    )
-    val_ds = image_dataset_from_directory(
-        f"{data_dir}/val",
-        image_size=img_size,
-        batch_size=batch_size,
-        label_mode='categorical'
-    )
-    test_ds = image_dataset_from_directory(
-        f"{data_dir}/test",
-        image_size=img_size,
-        batch_size=batch_size,
-        label_mode='categorical'
-    )
-    return train_ds, val_ds, test_ds
+            test_ds = tf.keras.utils.image_dataset_from_directory(
+                SPLIT_DATA_DIR / "test",
+                image_size=IMG_SIZE,
+                batch_size=BATCH_SIZE,
+                label_mode='categorical'
+            )
+
+            # Apply preprocessing
+            normalization = tf.keras.layers.Rescaling(1./255)
+            return (
+                train_ds.map(lambda x, y: (self.augmentation(normalization(x)), y)),
+                val_ds.map(lambda x, y: (normalization(x), y)),
+                test_ds.map(lambda x, y: (normalization(x), y))
+            )
+            
+        except Exception as e:
+            logger.error(f"Data loading failed: {str(e)}")
+            raise

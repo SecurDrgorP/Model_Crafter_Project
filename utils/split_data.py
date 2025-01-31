@@ -1,22 +1,23 @@
 import splitfolders
-import os
+from pathlib import Path
+from config import RAW_DATA_DIR, SPLIT_DATA_DIR, SEED, logger
 
-def split_data():
-    """
-    Splits the Fruit and Vegetable Diseases dataset into Train, Validation, and Test folders.
-    """
-    # Define the absolute or relative path to the dataset
-    dataset_path = os.path.abspath("../data/Fruit And Vegetable Diseases Dataset")  # Adjust path as needed
-    output_path = os.path.abspath("../data/split_dataset")  # Adjust output path as needed
-
-    # Split the dataset into Train (70%), Validation (15%), and Test (15%)
-    splitfolders.ratio(
-        input=dataset_path,  # Corrected parameter
-        output=output_path,
-        seed=42,             # For reproducibility
-        ratio=(0.7, 0.15, 0.15),
-        group_prefix=None,   # Prevent grouping (treat each class independently)
-        move=False           # Copy files instead of moving
-    )
-
-    print(f"Dataset successfully split into: {output_path}")
+def split_dataset():
+    """Split dataset into train/val/test sets"""
+    try:
+        logger.info("Starting dataset splitting...")
+        
+        splitfolders.ratio(
+            input=RAW_DATA_DIR,
+            output=SPLIT_DATA_DIR,
+            seed=SEED,
+            ratio=(0.7, 0.15, 0.15),
+            group_prefix=None,
+            move=False
+        )
+        
+        logger.info(f"Dataset successfully split and saved to {SPLIT_DATA_DIR}")
+    
+    except Exception as e:
+        logger.error(f"Dataset splitting failed: {str(e)}")
+        raise
