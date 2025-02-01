@@ -18,7 +18,7 @@ def train_model(model, train_gen, val_gen):
 
     history = model.fit(
         train_gen, # it is used to train the model
-        epochs=EPOCHS | 30,
+        epochs=EPOCHS,
         validation_data=val_gen, # it is used to evaluate the model after each epoch
         batch_size=BATCH_SIZE | 32,
         callbacks=[checkpoint, early_stop]
