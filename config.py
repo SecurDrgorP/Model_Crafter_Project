@@ -6,19 +6,22 @@ BASE_DIR = Path(__file__).parent
 
 # Data paths
 RAW_DATA_DIR = BASE_DIR / "data" / "FAVDD"
-SPLIT_DATA_DIR = BASE_DIR / "data" / "split_dataset"  # Renamed from DATA_DIR
+SPLIT_DATA_DIR = BASE_DIR / "data" / "split_dataset"
 MODEL_DIR = BASE_DIR / "models"
 RESULTS_DIR = BASE_DIR / "results"
 
 # Model parameters
-IMG_SIZE = (224, 224)
-BATCH_SIZE = 32
-EPOCHS = 15
-SEED = 42
+BATCH_SIZE = 16 # Number of images to process at once before updating weights and biases in the model data file ( defaults to 32) 
+IMG_SIZE = (128, 128) # Image size for resizing the images to a consistent size ( defaults to (256, 256) )
+EPOCHS = 20 # Number of times the model will cycle through the entire dataset ( defaults to 20 )
+# Random seed for reproducibility
+SEED = 42 # Seed for random number generation ( defaults to 42 ) ; default value is used for reproducibility
 
-# Create directories if missing
-for path in [RAW_DATA_DIR, SPLIT_DATA_DIR, MODEL_DIR, RESULTS_DIR]:
-    path.mkdir(parents=True, exist_ok=True)
+# Automatically determine number of classes
+try:
+    NUM_CLASSES = len([d for d in (SPLIT_DATA_DIR / "train").iterdir() if d.is_dir()])
+except FileNotFoundError:
+    NUM_CLASSES = None  # Will be set after data splitting
 
 # Logging configuration
 logging.basicConfig(
