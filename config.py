@@ -13,9 +13,11 @@ RESULTS_DIR = BASE_DIR / "results"
 # Model parameters
 BATCH_SIZE = 16 # Number of images to process at once before updating weights and biases in the model data file ( defaults to 32) 
 IMG_SIZE = (128, 128) # Image size for resizing the images to a consistent size ( defaults to (256, 256) )
-EPOCHS = 10 # Number of times the model will cycle through the entire dataset ( defaults to 20 )
+EPOCHS = 5 # Number of times the model will cycle through the entire dataset ( defaults to 20 )
 # Random seed for reproducibility
 SEED = 42 # Seed for random number generation ( defaults to 42 ) ; default value is used for reproducibility
+COLOR_MODEL = 'rgb' # Color model to use for images ( defaults to 'rgb' )
+NUM_CHANNELS = 3 # Number of image channels ( defaults to 3 )
 
 # Automatically determine number of classes
 try:

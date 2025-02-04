@@ -5,3 +5,5 @@ matplotlib
 seaborn
 split-folders
 numpy
+pandas
+imbalanced-learn

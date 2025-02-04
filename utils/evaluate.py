@@ -1,72 +1,69 @@
-# evaluate.py
+import pandas as pd
+import numpy as np
+from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
-from sklearn.metrics import classification_report, confusion_matrix
-from config import RESULTS_DIR, logger
+
+from config import RESULTS_DIR
 
 def evaluate_model(model, test_gen, model_type='cnn'):
-    """Evaluate CNN model and save results"""
-    try:
-        logger.info(f"Evaluating {model_type.upper()} model...")
-        y_pred = np.argmax(model.predict(test_gen), axis=1)
+    """Comprehensive evaluation for both CNN and ML models"""
+    if model_type == 'cnn':
         y_true = test_gen.classes
-        class_names = list(test_gen.class_indices.keys())
-
-        # Classification report
-        report = classification_report(y_true, y_pred, target_names=class_names, output_dict=True)
-        with open(RESULTS_DIR / f'{model_type}_report.txt', 'w') as f:
-            f.write(classification_report(y_true, y_pred, target_names=class_names))
-
-        # Confusion matrix
-        plt.figure(figsize=(15,12))
-        cm = confusion_matrix(y_true, y_pred)
-        sns.heatmap(cm, annot=True, fmt='d', xticklabels=class_names, yticklabels=class_names)
-        plt.title(f'{model_type.upper()} Confusion Matrix')
-        plt.savefig(RESULTS_DIR / f'{model_type}_confusion_matrix.png')
-        plt.close()
-
-        return report
-
-    except Exception as e:
-        logger.error(f"Evaluation failed: {str(e)}")
-        raise
+        y_pred = np.argmax(model.predict(test_gen), axis=1)
+        y_proba = model.predict(test_gen)
+    else:
+        X_test, y_true = test_gen
+        y_pred = model.predict(X_test)
+        y_proba = model.predict_proba(X_test) if hasattr(model, 'predict_proba') else None
+    
+    # Multi-class metrics
+    report = classification_report(y_true, y_pred, output_dict=True)
+    cm = confusion_matrix(y_true, y_pred)
+    
+    # Visualization
+    plt.figure(figsize=(15,15))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+    plt.title(f'Confusion Matrix ({model_type.upper()})')
+    plt.savefig(RESULTS_DIR / f'confusion_matrix_{model_type}.png')
+    
+    # ROC-AUC for binary health status if possible
+    if y_proba is not None and len(np.unique(y_true)) == 2:
+        report['roc_auc'] = roc_auc_score(y_true, y_proba[:,1])
+    
+    return report
 
 def compare_results(cnn_report, ml_reports):
-    """Compare CNN and traditional ML results"""
-    try:
-        # Accuracy comparison
-        accuracies = {
-            'CNN': cnn_report['accuracy'],
-            'SVM': ml_reports['SVM']['accuracy'],
-            'KNN': ml_reports['KNN']['accuracy'],
-            'RandomForest': ml_reports['RandomForest']['accuracy']
+    """Generate comparative analysis"""
+    comparison = {
+        'CNN': {
+            'accuracy': cnn_report['accuracy'],
+            'f1_weighted': cnn_report['weighted avg']['f1-score']
         }
-
-        plt.figure(figsize=(10,6))
-        plt.bar(accuracies.keys(), accuracies.values())
-        plt.title('Model Accuracy Comparison')
-        plt.ylabel('Accuracy')
-        plt.ylim(0, 1)
-        plt.savefig(RESULTS_DIR / 'accuracy_comparison.png')
-        plt.close()
-
-        # F1-score comparison
-        f1_scores = {
-            'CNN': cnn_report['macro avg']['f1-score'],
-            'SVM': ml_reports['SVM']['macro avg']['f1-score'],
-            'KNN': ml_reports['KNN']['macro avg']['f1-score'],
-            'RandomForest': ml_reports['RandomForest']['macro avg']['f1-score']
+    }
+    
+    for name, report in ml_reports.items():
+        comparison[name] = {
+            'accuracy': report['accuracy'],
+            'f1_weighted': report['weighted avg']['f1-score']
         }
+    
+    # Create comparison plot
+    metrics_df = pd.DataFrame(comparison).T
+    metrics_df.plot(kind='bar', figsize=(10,6))
+    plt.title('Model Comparison')
+    plt.ylabel('Score')
+    plt.ylim(0.5, 1.0)
+    plt.savefig(RESULTS_DIR / 'model_comparison.png')
+    
+    return comparison
 
-        plt.figure(figsize=(10,6))
-        plt.bar(f1_scores.keys(), f1_scores.values())
-        plt.title('Model F1-Score Comparison')
-        plt.ylabel('F1 Score')
-        plt.ylim(0, 1)
-        plt.savefig(RESULTS_DIR / 'f1_comparison.png')
-        plt.close()
-
-    except Exception as e:
-        logger.error(f"Comparison failed: {str(e)}")
-        raise
+def plot_confusion_matrix(y_true, y_pred, class_names):
+    """Plot confusion matrix"""
+    cm = confusion_matrix(y_true, y_pred)
+    plt.figure(figsize=(15,15))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
+    plt.title('Confusion Matrix')
+    plt.savefig(RESULTS_DIR / 'confusion_matrix.png')
+    plt.close()
+    

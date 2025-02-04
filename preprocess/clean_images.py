@@ -48,3 +48,32 @@ class ImageCleaner:
         
         print(f"Removing problematic file: {file_path} | Reason: {reason}")
         shutil.move(str(file_path), str(backup_path))
+
+    def convert_cmyk_to_rgb(self, backup=True):
+        """Convert CMYK images to RGB and optionally backup originals"""
+        converted_files = []
+        
+        for root, _, files in os.walk(self.data_dir):
+            for file in files:
+                file_path = Path(root) / file
+                
+                try:
+                    with Image.open(file_path) as img:
+                        if img.mode == 'CMYK':
+                            # Create backup if requested
+                            if backup:
+                                backup_dir = Path(root) / 'cmyk_backup'
+                                backup_dir.mkdir(exist_ok=True)
+                                backup_path = backup_dir / file
+                                file_path.rename(backup_path)
+                            
+                            # Convert to RGB and save
+                            rgb_img = img.convert('RGB')
+                            rgb_img.save(file_path)
+                            converted_files.append(str(file_path))
+                            
+                except Exception as e:
+                    print(f"Error processing {file_path}: {str(e)}")
+        
+        print(f"Converted {len(converted_files)} CMYK images to RGB")
+        return converted_files
