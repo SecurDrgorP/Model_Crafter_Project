@@ -1,5 +1,7 @@
 myvenv_dl/
-data/
 
+data/
 models/
 results/
+
+__pycache__/
