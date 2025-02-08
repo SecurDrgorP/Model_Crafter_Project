@@ -11,6 +11,8 @@ from train.train_cnn import train_model
 from train.train_traditional_ml import train_traditional_models
 from utils.evaluate import compare_results, evaluate_model
 from preprocess.split_data import split_dataset
+from train.train_traditional_ml import predict_chunked
+import numpy as np
 
 def main():
     try:
@@ -45,24 +47,34 @@ def main():
         tf.random.set_seed(SEED)
         history = train_model(model, train_gen, val_gen)
         
+        
         # CNN Evaluation
         logger.info("Evaluating CNN...")
         cnn_report = evaluate_model(model, test_gen, 'cnn')
 
         # Traditional ML Training
         logger.info("Training traditional models...")
-        ml_models, (X_test, y_test) = train_traditional_models(train_gen, test_gen)
+        # Your usage remains the same
+        # Your usage stays the same
+        ml_models, (X_test_chunks, y_test_chunks) = train_traditional_models(train_gen, test_gen)
 
-        # Traditional ML Evaluation
+        # Evaluate models
         ml_reports = {}
-        for name, model in ml_models.items():
+        for name, ml_model in ml_models.items():
             logger.info(f"Evaluating {name}...")
-            y_pred = model.predict(X_test)
-            ml_reports[name] = classification_report(y_test, y_pred, output_dict=True)
-            
-            # Save reports
-            with open(RESULTS_DIR / f'{name.lower()}_report.txt', 'w') as f:
-                f.write(classification_report(y_test, y_pred))
+            try:
+                # Get predictions for all chunks
+                y_pred = predict_chunked(ml_model, X_test_chunks)
+                # Concatenate all test labels
+                y_test = np.concatenate(y_test_chunks)
+                
+                ml_reports[name] = classification_report(y_test, y_pred, output_dict=True)
+                
+                # Save reports
+                with open(RESULTS_DIR / f'{name.lower()}_report.txt', 'w') as f:
+                    f.write(classification_report(y_test, y_pred))
+            except Exception as e:
+                logger.error(f"Evaluation failed for {name}: {str(e)}")
 
         # Performance comparison
         logger.info("Comparing results...")
@@ -70,7 +82,7 @@ def main():
 
         # Finalize
         logger.info("Saving final models...")
-        model.save(MODEL_DIR / 'cnn_model.h5')
+        model.save(MODEL_DIR / 'cnn_model.keras')
         logger.info("Pipeline completed successfully!")
 
     except Exception as e:
