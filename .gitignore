@@ -1,10 +1,9 @@
-myvenv_dl/
 data/
-
 models/
 results/
 
-
+myvenv_dl/
+venv_dl/
 .venv
 __pycache__/
 __pycache__/*
