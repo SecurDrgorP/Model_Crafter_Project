@@ -9,6 +9,7 @@ BASE_DIR = Path(__file__).parent
 # Data paths
 RAW_DATA_DIR = BASE_DIR / "data" / "FAVDD"
 SPLIT_DATA_DIR = BASE_DIR / "data" / "split_dataset"
+DATA_DIR = BASE_DIR / "data"
 MODEL_DIR = BASE_DIR / "models"
 RESULTS_DIR = BASE_DIR / "results"
 
@@ -25,7 +26,7 @@ if not os.path.exists(RESULTS_DIR):
 
 # Model parameters
 BATCH_SIZE = 16 # Number of images to process at once before updating weights and biases in the model data file ( defaults to 32) 
-IMG_SIZE = (256, 256) # Image size for resizing the images to a consistent size ( defaults to (256, 256) )
+IMG_SIZE = (128, 128) # Image size for resizing the images to a consistent size ( defaults to (256, 256) )
 EPOCHS = 17 # Number of times the model will cycle through the entire dataset ( defaults to 20 )
 # Random seed for reproducibility
 SEED = 42 # Seed for random number generation ( defaults to 42 ) ; default value is used for reproducibility
