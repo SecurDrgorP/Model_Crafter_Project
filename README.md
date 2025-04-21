@@ -48,7 +48,7 @@ Follow these steps to set up the project:
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/your-username/Fruits-and-Vegetables-Disease-Detection.git
+   git clone https://github.com/SecurDrgorP/Model_Crafter_Project.git
    cd Fruits-and-Vegetables-Disease-Detection
    ```
 
