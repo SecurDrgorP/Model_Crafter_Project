@@ -59,11 +59,18 @@ def train_and_evaluate_cnn(train_gen, val_gen, test_gen):
         logger.info("Calculating class weights...")
         class_weights = get_class_weights(train_gen)
 
+        # Ask the user if they want to use the custom checkpoint logic
+        use_custom_checkpoint = input("""Do you want to use the custom checkpoint logic; 
+                                         It is saving the lowest difference between 
+                                         training and validation accuracy 
+                                         and val_loss? (y/n): """).strip().lower() == 'y'
+
         history = train_model(
             model=model,
             train_gen=train_gen,
             val_gen=val_gen,
-            class_weights=class_weights
+            class_weights=class_weights,
+            use_custom_checkpoint=use_custom_checkpoint
         )
 
         # Save training history
