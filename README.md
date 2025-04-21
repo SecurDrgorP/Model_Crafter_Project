@@ -14,8 +14,6 @@ A deep learning project to classify diseases in fruits and vegetables using CNNs
 - [Features](#features)
 - [Results](#results)
 - [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
 
 ---
 
