@@ -1,4 +1,4 @@
-# Fruits and Vegetables Disease Detection 🍎🥦
+# Fruits and Vegetables Disease Detection 🍎🥦 (As an example)
 
 A deep learning project to classify diseases in fruits and vegetables using CNNs and traditional ML models (SVM, KNN, Random Forest).
 
