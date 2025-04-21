@@ -2,6 +2,8 @@
 
 A deep learning project to classify diseases in fruits and vegetables using CNNs and traditional ML models (SVM, KNN, Random Forest).
 
+**Note**: This project is designed to be adaptable for any CNN-based classification dataset, making it a versatile tool for various image classification tasks.
+
 ![Demo](https://img.shields.io/badge/Status-Active-brightgreen) ![Python](https://img.shields.io/badge/Python-3.8%2B-blue) ![License](https://img.shields.io/badge/License-MIT-orange)
 
 ---
